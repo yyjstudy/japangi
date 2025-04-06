@@ -70,7 +70,7 @@ public class ItemManager {
             this.price = price;
             this.stock = stock;
         }
-        
+
         public String getName() {
             return name;
         }
