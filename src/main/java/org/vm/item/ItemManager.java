@@ -5,6 +5,7 @@ import java.util.*;
 public class ItemManager {
     private final Set<String> duplicatedCheckSet = new HashSet<>();
     private final Map<Integer, Item> indexMap = new HashMap<>();
+    private int index = 0;
 
     private Item getItem(int index) {
         Item item = indexMap.get(index);
@@ -22,7 +23,8 @@ public class ItemManager {
 
         Item item = new Item(name, price, stock);
         duplicatedCheckSet.add(name);
-        indexMap.put(item.getIndex(), item);
+        indexMap.put(index, item);
+        index++;
     }
 
     public boolean isSoldOut(int index) {
@@ -62,7 +64,6 @@ public class ItemManager {
 
         private final String name;
         private final int price;
-        private final int index;
 
         private int stock;
 
@@ -72,7 +73,6 @@ public class ItemManager {
             this.stock = stock;
 
             INDEX_NUMBER++;
-            this.index = INDEX_NUMBER;
         }
 
 
@@ -86,10 +86,6 @@ public class ItemManager {
 
         public int getStock() {
             return stock;
-        }
-
-        public int getIndex() {
-            return index;
         }
 
         public boolean isSoldOut() {

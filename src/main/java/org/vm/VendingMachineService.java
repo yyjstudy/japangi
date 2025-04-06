@@ -76,6 +76,7 @@ public class VendingMachineService {
             System.out.println("자판기에서 " + itemManager.getName(itemNumber) + "이(가) 1개 나왔습니다.");
         }
 
+        System.out.println("다음 정보는 Admin용 잔고 정보입니다. (cash의 잔고는 유저에게 잔돈반환을 위해 초기에 설정한 금액까지 포함해서 나옵니다.)");
         Arrays.stream(PaymentType.values()).forEach(type -> {
             PaymentInterface payment = paymentSelector.getPayment(type.getIndex());
 

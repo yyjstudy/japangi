@@ -5,7 +5,7 @@ import java.util.*;
 public class CashPayment implements PaymentInterface {
     private final Scanner scanner = new Scanner(System.in);
 
-    //잔고, 초기에 5개씩 갖고있다고 가정
+    //잔고, 초기에 5개씩 갖고있다고 가정, 리플렉션으로 초기화 하게하여 여기서 직접 셋팅함.
     private int won100Count = 5;
     private int won500Count = 5;
     private int won1000Count = 5;
