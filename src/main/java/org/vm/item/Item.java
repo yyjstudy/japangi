@@ -1,12 +1,13 @@
 package org.vm.item;
 
 public class Item {
+    private static int INDEX_NUMBER;
+
     private final String name;
     private final int price;
-    private int stock;
-
     private final int index;
-    private static int INDEX_NUMBER;
+
+    private int stock;
 
     public Item(String name, int price, int stock) {
         this.name = name;

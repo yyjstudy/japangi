@@ -2,8 +2,8 @@ package org.vm.payment;
 
 //카드결제는 실패할리 없다고 가정.
 public class CardPayment implements PaymentInterface {
-    int totalBalance;
-    int collectAmount;
+    private int totalBalance;
+    private int collectAmount;
 
     @Override
     public boolean pay(int price) {

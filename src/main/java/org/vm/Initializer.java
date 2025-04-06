@@ -7,11 +7,11 @@ import org.vm.payment.PaymentInterface;
 import org.vm.payment.PaymentSelector;
 import org.vm.payment.PaymentType;
 
-import java.util.Set;
+import java.util.*;
 
 public class Initializer {
-    private ItemManager itemManager;
-    private PaymentSelector paymentSelector;
+    private final ItemManager itemManager;
+    private final PaymentSelector paymentSelector;
 
     public Initializer(ItemManager itemManager, PaymentSelector paymentSelector) {
         this.itemManager = itemManager;
