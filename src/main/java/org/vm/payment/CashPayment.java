@@ -5,12 +5,12 @@ import java.util.*;
 public class CashPayment implements PaymentInterface {
     private final Scanner scanner = new Scanner(System.in);
 
-    //잔고
-    private int won100Count;
-    private int won500Count;
-    private int won1000Count;
-    private int won5000Count;
-    private int won10000Count;
+    //잔고, 초기에 5개씩 갖고있다고 가정
+    private int won100Count = 5;
+    private int won500Count = 5;
+    private int won1000Count = 5;
+    private int won5000Count = 5;
+    private int won10000Count = 5;
 
     //유저지불 임시캐쉬
     private int collectWon100Count;
@@ -98,14 +98,6 @@ public class CashPayment implements PaymentInterface {
     @Override
     public PaymentType getPaymentType() {
         return PaymentType.CASH;
-    }
-
-    public void setInitBalanceEachCount(int count) {
-        won100Count = count;
-        won500Count = count;
-        won1000Count = count;
-        won5000Count = count;
-        won10000Count = count;
     }
 
     private void addCollect() {

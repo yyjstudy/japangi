@@ -37,10 +37,6 @@ public class Initializer {
                 throw new RuntimeException("init payment 초기화 에러", e);
             }
         }
-
-        //캐쉬의 경우 잔고지급을 위해 동전별로 초기 갯수를 채워놓는다.
-        CashPayment payment = (CashPayment) paymentSelector.getPayment(PaymentType.CASH.getIndex());
-        payment.setInitBalanceEachCount(5);
     }
 
 
