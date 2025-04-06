@@ -2,10 +2,8 @@ package org.vm;
 
 import org.reflections.Reflections;
 import org.vm.item.ItemManager;
-import org.vm.payment.CashPayment;
 import org.vm.payment.PaymentInterface;
 import org.vm.payment.PaymentSelector;
-import org.vm.payment.PaymentType;
 
 import java.util.*;
 
@@ -40,7 +38,7 @@ public class Initializer {
     }
 
 
-    private void initItem(){
+    private void initItem() {
         itemManager.addItem("콜라", 1100, 2);
         itemManager.addItem("물", 600, 2);
         itemManager.addItem("커피", 700, 2);
