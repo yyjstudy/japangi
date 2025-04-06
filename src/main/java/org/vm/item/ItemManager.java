@@ -60,8 +60,6 @@ public class ItemManager {
     }
 
     static class Item {
-        private static int INDEX_NUMBER;
-
         private final String name;
         private final int price;
 
@@ -71,11 +69,8 @@ public class ItemManager {
             this.name = name;
             this.price = price;
             this.stock = stock;
-
-            INDEX_NUMBER++;
         }
-
-
+        
         public String getName() {
             return name;
         }
