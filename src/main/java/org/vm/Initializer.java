@@ -1,11 +1,7 @@
 package org.vm;
 
-import org.reflections.Reflections;
 import org.vm.item.ItemManager;
-import org.vm.payment.PaymentInterface;
-import org.vm.payment.PaymentSelector;
-
-import java.util.*;
+import org.vm.payment.*;
 
 public class Initializer {
     private final ItemManager itemManager;
@@ -22,21 +18,17 @@ public class Initializer {
     }
 
     private void initPayment() {
-        Reflections reflections = new Reflections("org.vm.payment");
-        Set<Class<? extends PaymentInterface>> classes =
-                reflections.getSubTypesOf(PaymentInterface.class);
+        CardPayment cardPayment = new CardPayment();
+        paymentSelector.addPayment(PaymentType.CARD.getIndex(), cardPayment);
 
-        for (Class<? extends PaymentInterface> clazz : classes) {
-            try {
-                PaymentInterface instance = clazz.getDeclaredConstructor().newInstance();
-                int index = instance.getPaymentType().getIndex(); // 키로 사용할 값
-                paymentSelector.addPayment(index, instance);
-            } catch (Exception e) {
-                throw new RuntimeException("init payment 초기화 에러", e);
-            }
-        }
+        CashPayment cashPayment = new CashPayment();
+        cashPayment.addCoin(100, 5);
+        cashPayment.addCoin(500, 5);
+        cashPayment.addCoin(1000, 5);
+        cashPayment.addCoin(5000, 5);
+        cashPayment.addCoin(10000, 5);
+        paymentSelector.addPayment(PaymentType.CASH.getIndex(), cashPayment);
     }
-
 
     private void initItem() {
         itemManager.addItem("콜라", 1100, 2);

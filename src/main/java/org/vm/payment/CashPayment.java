@@ -5,29 +5,24 @@ import java.util.*;
 public class CashPayment implements PaymentInterface {
     private final Scanner scanner = new Scanner(System.in);
 
-    //잔고, 초기에 5개씩 갖고있다고 가정, 리플렉션으로 초기화 하게하여 여기서 직접 셋팅함.
-    private int won100Count = 5;
-    private int won500Count = 5;
-    private int won1000Count = 5;
-    private int won5000Count = 5;
-    private int won10000Count = 5;
+    // 금액권과 잔고 수량 관리: key는 금액권, value는 보유 수량
+    private final Map<Integer, Integer> balance = new HashMap<>();
 
-    //유저지불 임시캐쉬
-    private int collectWon100Count;
-    private int collectWon500Count;
-    private int collectWon1000Count;
-    private int collectWon5000Count;
-    private int collectWon10000Count;
-    private int collectTotalAmount;
+    // 정렬된 금액권 목록 (내림차순)
+    private final List<Integer> sortedDenominations = new ArrayList<>();
+
+    // 유저가 투입한 임시 캐시
+    private final Map<Integer, Integer> collectMap = new HashMap<>();
+    private int collectTotalAmount = 0;
 
     @Override
     public boolean pay(int price) {
         addCollect();
 
         int change = collectTotalAmount - price;
-        System.out.println("총 반환해야할 잔돈 :" + change);
+        System.out.println("총 반환해야할 잔돈: " + change);
         if (!giveChange(change)) {
-            restoreAddCollect();
+            restoreCollect();
             resetCollect();
             return false;
         }
@@ -38,56 +33,34 @@ public class CashPayment implements PaymentInterface {
 
     @Override
     public int getTotalBalance() {
-        int totalBalance = won100Count * 100 +
-                won500Count * 500 +
-                won1000Count * 1000 +
-                won5000Count * 5000 +
-                won10000Count * 10000;
-
-        return totalBalance;
+        return balance.entrySet().stream()
+                .mapToInt(e -> e.getKey() * e.getValue())
+                .sum();
     }
 
     @Override
     public boolean collectAmount(int price) {
-        System.out.println("[현금 결제] 금액을 투입하세요. (단위: 100 / 500 / 1000 / 5000 / 10000), 취소는 0번");
+        System.out.println("[현금 결제] 금액을 투입하세요. (지원 금액: " + sortedDenominations + "), 취소는 0번");
         System.out.println("총 필요한 금액: " + price + "원");
 
         while (collectTotalAmount < price) {
             System.out.print("금액 입력: ");
             int input = scanner.nextInt();
 
-            switch (input) {
-                case 100:
-                    collectWon100Count++;
-                    break;
-                case 500:
-                    collectWon500Count++;
-                    break;
-                case 1000:
-                    collectWon1000Count++;
-                    break;
-                case 5000:
-                    collectWon5000Count++;
-                    break;
-                case 10000:
-                    collectWon10000Count++;
-                    break;
-                case 0:
-                    System.out.println("입금한 금액:" + collectTotalAmount + "을 반환하였습니다.");
-                    collectWon100Count = 0;
-                    collectWon500Count = 0;
-                    collectWon1000Count = 0;
-                    collectWon5000Count = 0;
-                    collectWon10000Count = 0;
-                    collectTotalAmount = 0;
-                    return false;
-
-                default:
-                    System.out.println("유효하지 않은 금액입니다. 다시 입력해주세요.");
-                    continue;
+            if (input == 0) {
+                System.out.println("입금한 금액: " + collectTotalAmount + "원을 반환하였습니다.");
+                resetCollect();
+                return false;
             }
 
+            if (!balance.containsKey(input)) {
+                System.out.println("지원하지 않는 금액입니다. 다시 입력해주세요.");
+                continue;
+            }
+
+            collectMap.put(input, collectMap.getOrDefault(input, 0) + 1);
             collectTotalAmount += input;
+
             int remaining = Math.max(0, price - collectTotalAmount);
             System.out.println("현재 투입 금액: " + collectTotalAmount + "원 / 투입해야할 남은 금액: " + remaining + "원");
         }
@@ -100,79 +73,55 @@ public class CashPayment implements PaymentInterface {
         return PaymentType.CASH;
     }
 
-    private void addCollect() {
-        won100Count += collectWon100Count;
-        won500Count += collectWon500Count;
-        won1000Count += collectWon1000Count;
-        won5000Count += collectWon5000Count;
-        won10000Count += collectWon10000Count;
+    public void addCoin(int denomination, int count) {
+        balance.put(denomination, count);
+        if (!sortedDenominations.contains(denomination)) {
+            sortedDenominations.add(denomination);
+            sortedDenominations.sort(Comparator.reverseOrder());
+        }
     }
 
-    private void restoreAddCollect() {
-        won100Count -= collectWon100Count;
-        won500Count -= collectWon500Count;
-        won1000Count -= collectWon1000Count;
-        won5000Count -= collectWon5000Count;
-        won10000Count -= collectWon10000Count;
+    private void addCollect() {
+        for (Map.Entry<Integer, Integer> entry : collectMap.entrySet()) {
+            balance.put(entry.getKey(), balance.getOrDefault(entry.getKey(), 0) + entry.getValue());
+        }
+    }
+
+    private void restoreCollect() {
+        for (Map.Entry<Integer, Integer> entry : collectMap.entrySet()) {
+            balance.put(entry.getKey(), balance.get(entry.getKey()) - entry.getValue());
+        }
     }
 
     private void resetCollect() {
-        collectWon100Count = 0;
-        collectWon500Count = 0;
-        collectWon1000Count = 0;
-        collectWon5000Count = 0;
-        collectWon10000Count = 0;
+        collectMap.clear();
         collectTotalAmount = 0;
     }
 
     private boolean giveChange(int change) {
-        int temp10000 = won10000Count;
-        int temp5000 = won5000Count;
-        int temp1000 = won1000Count;
-        int temp500 = won500Count;
-        int temp100 = won100Count;
+        Map<Integer, Integer> tempBalance = new HashMap<>(balance);
+        Map<Integer, Integer> changeMap = new HashMap<>();
 
-        int count10000 = 0, count5000 = 0, count1000 = 0, count500 = 0, count100 = 0;
-
-        while (change > 0) {
-            if (change >= 10000 && temp10000 > 0) {
-                change -= 10000;
-                temp10000--;
-                count10000++;
-            } else if (change >= 5000 && temp5000 > 0) {
-                change -= 5000;
-                temp5000--;
-                count5000++;
-            } else if (change >= 1000 && temp1000 > 0) {
-                change -= 1000;
-                temp1000--;
-                count1000++;
-            } else if (change >= 500 && temp500 > 0) {
-                change -= 500;
-                temp500--;
-                count500++;
-            } else if (change >= 100 && temp100 > 0) {
-                change -= 100;
-                temp100--;
-                count100++;
-            } else {
-                System.out.println("잔고가 부족하므로 " + collectTotalAmount + "원을 환불해 드렸습니다.");
-                return false;
+        for (int denom : sortedDenominations) {
+            while (change >= denom && tempBalance.getOrDefault(denom, 0) > 0) {
+                change -= denom;
+                tempBalance.put(denom, tempBalance.get(denom) - 1);
+                changeMap.put(denom, changeMap.getOrDefault(denom, 0) + 1);
             }
         }
 
-        won10000Count = temp10000;
-        won5000Count = temp5000;
-        won1000Count = temp1000;
-        won500Count = temp500;
-        won100Count = temp100;
+        if (change > 0) {
+            System.out.println("잔고가 부족하여 " + collectTotalAmount + "원을 환불해 드렸습니다.");
+            return false;
+        }
+
+        balance.clear();
+        balance.putAll(tempBalance);
 
         System.out.println("잔돈 반환:");
-        if (count10000 > 0) System.out.println("10000원권: " + count10000 + "개");
-        if (count5000 > 0) System.out.println("5000원권: " + count5000 + "개");
-        if (count1000 > 0) System.out.println("1000원권: " + count1000 + "개");
-        if (count500 > 0) System.out.println("500원: " + count500 + "개");
-        if (count100 > 0) System.out.println("100원: " + count100 + "개");
+        for (Map.Entry<Integer, Integer> entry : changeMap.entrySet()) {
+            System.out.println(entry.getKey() + "원: " + entry.getValue() + "개");
+        }
 
         return true;
     }
