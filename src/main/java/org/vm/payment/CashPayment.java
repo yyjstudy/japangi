@@ -9,7 +9,7 @@ public class CashPayment implements PaymentInterface {
     private final Map<Integer, Integer> balance = new HashMap<>();
 
     // 정렬된 금액권 목록 (내림차순)
-    private final List<Integer> sortedDenominations = new ArrayList<>();
+    private final NavigableSet<Integer> sortedDenominations = new TreeSet<>(Comparator.reverseOrder());
 
     // 유저가 투입한 임시 캐시
     private final Map<Integer, Integer> collectMap = new HashMap<>();
@@ -75,10 +75,7 @@ public class CashPayment implements PaymentInterface {
 
     public void addCoin(int denomination, int count) {
         balance.put(denomination, count);
-        if (!sortedDenominations.contains(denomination)) {
-            sortedDenominations.add(denomination);
-            sortedDenominations.sort(Comparator.reverseOrder());
-        }
+        sortedDenominations.add(denomination);
     }
 
     private void addCollect() {
@@ -119,8 +116,11 @@ public class CashPayment implements PaymentInterface {
         balance.putAll(tempBalance);
 
         System.out.println("잔돈 반환:");
-        for (Map.Entry<Integer, Integer> entry : changeMap.entrySet()) {
-            System.out.println(entry.getKey() + "원: " + entry.getValue() + "개");
+        for (int denomination : sortedDenominations) {
+            Integer count = changeMap.get(denomination);
+            if(count != null){
+                System.out.println(denomination + "원: " + count + "개");
+            }
         }
 
         return true;
