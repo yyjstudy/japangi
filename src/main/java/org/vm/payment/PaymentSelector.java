@@ -16,4 +16,8 @@ public class PaymentSelector {
     public boolean isExist(int index){
         return map.containsKey(index);
     }
+
+    public int getPaymentCount(){
+        return map.size();
+    }
 }

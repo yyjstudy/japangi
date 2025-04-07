@@ -28,6 +28,10 @@ public class Initializer {
         cashPayment.addCoin(5000, 5);
         cashPayment.addCoin(10000, 5);
         paymentSelector.addPayment(PaymentType.CASH.getIndex(), cashPayment);
+
+        if(paymentSelector.getPaymentCount() != PaymentType.values().length){
+            throw new RuntimeException("init payment failed");
+        }
     }
 
     private void initItem() {
